@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import ToggleTimerForm from "./ToggleTimerForm";
+import { unmountComponentAtNode, findDOMNode } from "react-dom";
 import Timer from "./Timer";
+import uniqid from "uniqid";
 
 class EditableTimerList extends Component {
   constructor(props) {
@@ -9,12 +11,12 @@ class EditableTimerList extends Component {
       timerList: [],
     };
     this.getInfoTimerForm = this.getInfoTimerForm.bind(this);
+    this.handleUnmountChildTimer = this.handleUnmountChildTimer.bind(this);
   }
   componentDidMount() {
     this.setState({ timerList: [] });
   }
   getInfoTimerForm(title, project, hours, minutes, seconds) {
-    console.log(this.state.timerList, "previous");
     this.setState({
       timerList: [
         ...this.state.timerList,
@@ -24,16 +26,28 @@ class EditableTimerList extends Component {
           hoursList: hours,
           minutesList: minutes,
           secondsList: seconds,
+          idTimer: uniqid(),
         },
       ],
     });
-    console.log(this.state.timerList);
+  }
+  handleUnmountChildTimer(uCid) {
+    console.log(uCid, "Parent");
+    let newList = this.state.timerList;
+    console.log(newList, "Timerlist");
+    this.setState({
+      timerList: this.state.timerList.filter((item) => {
+        return item.idTimer !== uCid;
+      }),
+    });
+    //unmountComponentAtNode(document.getElementById("GG"));
   }
   constructTimer(item) {
-    console.log(item.titleList);
     let timer = (
-      <div className="p-2 bd-highlight">
+      <div className="p-2 bd-highlight" id={item.idTimer}>
         <Timer
+          idDiv={item.idTimer}
+          onDelete={this.handleUnmountChildTimer}
           title={item.titleList}
           project={item.projectList}
           countdown={{

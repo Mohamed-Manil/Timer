@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { unmountComponentAtNode, findDOMNode } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
+import uniqid from "uniqid";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import EditableTimer from "./EditableTimer";
@@ -128,7 +129,8 @@ class Timer extends Component {
 
   hadnleUnmount(e) {
     e.preventDefault();
-    unmountComponentAtNode(document.getElementById("root"));
+    console.log("Timer", this.props.idDiv);
+    this.props.onDelete(this.props.idDiv);
   }
 
   render() {
