@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import React, { Component } from "react";
+import Timer from "./Compenents/Timer";
+import EditableTimer from "./Compenents/EditableTimer";
+import ToggleTimerForm from "./Compenents/ToggleTimerForm";
+import EditableTimerList from "./Compenents/EditableTimerList";
+import TimerDashBoard from "./Compenents/TimerDashboard";
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  render() {
+    return (
+      <div>
+        <TimerDashBoard></TimerDashBoard>
+      </div>
+    );
+  }
 }
 
 export default App;

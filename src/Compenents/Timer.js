@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { unmountComponentAtNode, findDOMNode } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
@@ -13,30 +14,91 @@ class Timer extends Component {
       project: this.props.project,
       countdown: this.timerFormater(),
       isToggleUpdate: false,
+      timerId: null,
+      pausResumeLabel: "Stop",
+      pauseResumeStyle: "btn btn-outline-danger w-100",
+      isRunning: true,
     };
     this.editTimer = this.editTimer.bind(this);
     this.cancelUpdateTimer = this.cancelUpdateTimer.bind(this);
     this.updateTimer = this.updateTimer.bind(this);
+    this.pauseResumeTimer = this.pauseResumeTimer.bind(this);
+    this.hadnleUnmount = this.hadnleUnmount.bind(this);
   }
 
   componentDidMount() {
     let timer = this.timerFormater();
     let stop = moment("000000", "HHmmss");
     stop = stop.format("HH:mm:ss");
-    let interval = setInterval(() => {
-      if (
-        moment(timer, "HH:mm:ss").valueOf() ===
-        moment(stop, "HH:mm:ss").valueOf()
-      ) {
-        clearInterval(interval);
-        return 0;
-      }
-      timer = moment(timer, "HH:mm:ss")
-        .subtract(1, "seconds")
-        .format("HH:mm:ss");
-      this.setState({ countdown: timer });
-      //console.log(moment(timer, 'HH:mm:ss'), moment(stop, 'HH:mm:ss'))
-    }, 1000);
+    this.setState({
+      timerId: setInterval(() => {
+        if (
+          moment(timer, "HH:mm:ss").valueOf() ===
+          moment(stop, "HH:mm:ss").valueOf()
+        ) {
+          this.setState(clearInterval(this.state.timerId));
+          this.setState({
+            pausResumeLabel: "Done",
+            pauseResumeStyle: "btn btn-success w-100",
+          });
+          return 0;
+        }
+        timer = moment(timer, "HH:mm:ss")
+          .subtract(1, "seconds")
+          .format("HH:mm:ss");
+        this.setState({ countdown: timer });
+      }, 1000),
+    });
+  }
+
+  componentWillUnmount() {
+    this.setState(clearInterval(this.state.countdown));
+  }
+
+  pauseResumeTimer(e) {
+    e.preventDefault();
+    let stop = moment("000000", "HHmmss");
+    stop = stop.format("HH:mm:ss");
+    if (
+      moment(this.state.countdown, "HH:mm:ss").valueOf() ===
+      moment(stop, "HH:mm:ss").valueOf()
+    ) {
+      return;
+    }
+    if (this.state.isRunning) {
+      this.setState(clearInterval(this.state.timerId));
+      this.setState({
+        pausResumeLabel: "Resume",
+        pauseResumeStyle: "btn btn-outline-info w-100",
+        isRunning: false,
+      });
+    } else {
+      this.setState({
+        pausResumeLabel: "Stop",
+        pauseResumeStyle: "btn btn-outline-danger w-100",
+        isRunning: true,
+      });
+      let timer = this.state.countdown;
+      this.setState({
+        timerId: setInterval(() => {
+          if (
+            moment(timer, "HH:mm:ss").valueOf() ===
+            moment(stop, "HH:mm:ss").valueOf()
+          ) {
+            this.setState(clearInterval(this.state.timerId));
+            this.setState({
+              pausResumeLabel: "Done",
+              pauseResumeStyle: "btn btn-success w-100",
+            });
+            return 0;
+          }
+          timer = moment(timer, "HH:mm:ss")
+            .subtract(1, "seconds")
+            .format("HH:mm:ss");
+          this.setState({ countdown: timer });
+        }, 1000),
+      });
+    }
   }
 
   timerFormater() {
@@ -62,6 +124,11 @@ class Timer extends Component {
       project: projectUpdate,
       isToggleUpdate: !this.state.isToggleUpdate,
     });
+  }
+
+  hadnleUnmount(e) {
+    e.preventDefault();
+    unmountComponentAtNode(document.getElementById("root"));
   }
 
   render() {
@@ -94,15 +161,19 @@ class Timer extends Component {
             </a>
           </div>
           <div className="col-1">
-            <a href="#" className="text-dark">
+            <a href="#" className="text-dark" onClick={this.hadnleUnmount}>
               <FontAwesomeIcon icon={faTrash} />
             </a>
           </div>
         </div>
         <div className="row">
           <div className="col-12">
-            <button type="button" className="btn btn-outline-danger w-100">
-              Stop
+            <button
+              type="button"
+              className={this.state.pauseResumeStyle}
+              onClick={this.pauseResumeTimer}
+            >
+              {this.state.pausResumeLabel}
             </button>
           </div>
         </div>
